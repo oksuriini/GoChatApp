@@ -44,6 +44,7 @@ func handleConn(c net.Conn, uchan chan string, chanmsg chan string) {
 		str, err := reader.ReadString('\n')
 		if err != nil {
 			fmt.Println("SOMETHING WENT TERRIBLY WRONG")
+			close(uchan)
 			break
 		}
 		msg := username + ": " + str
