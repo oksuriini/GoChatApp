@@ -14,10 +14,6 @@ func main() {
 		fmt.Println(err)
 	}
 
-	var chans []chan string
-
-	go handlemsg(chans, chanmsg)
-
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -25,7 +21,6 @@ func main() {
 			continue
 		}
 		uchan := make(chan string, 100)
-		chans = append(chans, uchan)
 		go handleConn(conn, uchan, chanmsg)
 
 	}
@@ -36,6 +31,7 @@ func handleConn(c net.Conn, uchan chan string, chanmsg chan string) {
 	c.Write([]byte("Please enter your name: "))
 	username, err := reader.ReadString('\n')
 	username = strings.TrimSpace(username)
+	go handlemsg(chanmsg)
 	if err != nil {
 		fmt.Println("Error creating username")
 	}
@@ -47,9 +43,8 @@ func handleConn(c net.Conn, uchan chan string, chanmsg chan string) {
 			close(uchan)
 			break
 		}
-		msg := username + ": " + str
-		fmt.Println(msg)
-		uchan <- msg
+		msg := username + ": " + strings.TrimSpace(str)
+		chanmsg <- msg
 	}
 
 	// Connection closed for some reason
@@ -57,14 +52,11 @@ func handleConn(c net.Conn, uchan chan string, chanmsg chan string) {
 
 }
 
-func handlemsg(uchannels []chan string, msgchan chan string) {
-
-	for _, uchan := range uchannels {
-		for {
-			select {
-			case msg := <-uchan:
-				fmt.Printf(msg)
-			}
+func handlemsg(msgchan chan string) {
+	for {
+		select {
+		case msg := <-msgchan:
+			fmt.Println(msg)
 		}
 	}
 }
