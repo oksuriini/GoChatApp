@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	listener, err := net.Listen("tcp", ":30222")
+	listener, err := net.Listen("tcp", ":9090")
 	chanmsg := make(chan string)
 	if err != nil {
 		fmt.Println(err)
